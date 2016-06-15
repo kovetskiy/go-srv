@@ -6,16 +6,18 @@ import (
 	"strings"
 )
 
-func Resolve(address string) ([]string, error) {
+// Resolve specified address, returns sorted by priority and randomized by
+// weight within a priority records list.
+func Resolve(record string) ([]string, error) {
 	var err error
 	var records []*net.SRV
 
 	// _noded
 	// _noded._tcp.example.com
-	if strings.Count(address, ".") == 0 {
-		_, records, err = net.LookupSRV("", "", address)
-	} else if strings.Count(address, ".") > 1 {
-		parts := strings.SplitN(address, ".", 3)
+	if strings.Count(record, ".") == 0 {
+		_, records, err = net.LookupSRV("", "", record)
+	} else if strings.Count(record, ".") > 1 {
+		parts := strings.SplitN(record, ".", 3)
 		_, records, err = net.LookupSRV(
 			strings.TrimLeft(parts[0], "_"),
 			strings.TrimLeft(parts[1], "_"),
@@ -24,24 +26,24 @@ func Resolve(address string) ([]string, error) {
 	} else {
 		return nil, fmt.Errorf(
 			"SRV record '%s' is malformed, should be "+
-				"like as _service or _service._tcp.example.com", address,
+				"like as _service or _service._tcp.example.com", record,
 		)
 	}
 
 	if err != nil {
 		return nil, fmt.Errorf(
-			"can't resolve SRV record for '%s': %s", address, err,
+			"can't resolve SRV record for '%s': %s", record, err,
 		)
 	}
 
 	var addresses []string
 	for _, srvRecord := range records {
-		resolved := fmt.Sprintf(
+		address := fmt.Sprintf(
 			"%s:%d",
 			strings.Trim(srvRecord.Target, "."), srvRecord.Port,
 		)
 
-		addresses = append(addresses, resolved)
+		addresses = append(addresses, address)
 	}
 
 	return addresses, nil
