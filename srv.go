@@ -6,11 +6,19 @@ import (
 	"strings"
 )
 
+var (
+	Testing_RecordToResult = map[string][]string{}
+)
+
 // Resolve specified address, returns sorted by priority and randomized by
 // weight within a priority records list.
 func Resolve(record string) ([]string, error) {
 	var err error
 	var records []*net.SRV
+
+	if testing, ok := Testing_RecordToResult[record]; ok {
+		return testing, nil
+	}
 
 	// _noded
 	// _noded._tcp.example.com
