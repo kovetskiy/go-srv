@@ -1,4 +1,4 @@
-package srv
+package srv // import "github.com/reconquest/srv-go"
 
 import (
 	"fmt"
